@@ -1,0 +1,148 @@
+{
+  "name": "Create Twitter/X Post",
+  "nodes": [
+    {
+      "parameters": {
+        "sheetId": "YOUR_GOOGLE_SHEET_ID",
+        "range": "Sheet1!A:C",
+        "options": {}
+      },
+      "name": "Get Content Ideas",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -800,
+        100
+      ],
+      "typeVersion": 1,
+      "id": "0b04431d-d99e-4a23-85b8-1df0135e9316"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "prompt": "Create a social media post for {{$node[\"Get Content Ideas\"].json[\"Platform\"]}} based on this idea: {{$node[\"Get Content Ideas\"].json[\"Idea\"]}}. Keep it engaging and concise.",
+        "options": {},
+        "requestOptions": {}
+      },
+      "name": "Generate Post with OpenAI",
+      "type": "n8n-nodes-base.openAi",
+      "position": [
+        -500,
+        100
+      ],
+      "typeVersion": 1,
+      "id": "41863cf6-4076-4442-90d6-5881ba093d35"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "{{$node[\"Get Content Ideas\"].json[\"Platform\"]}}",
+              "value2": "Twitter"
+            }
+          ]
+        }
+      },
+      "name": "Check Platform",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -240,
+        100
+      ],
+      "typeVersion": 1,
+      "id": "29401fb5-720e-4ef9-8344-d2f766849c35"
+    },
+    {
+      "parameters": {
+        "text": "{{$node[\"Generate Post with OpenAI\"].json[\"text\"]}}",
+        "additionalFields": {}
+      },
+      "name": "Post to Twitter",
+      "type": "n8n-nodes-base.twitter",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "f3875f85-c1f0-4e4e-94c7-98611d0c575a",
+      "credentials": {
+        "twitterOAuth1Api": {
+          "id": null,
+          "name": "YOUR_TWITTER_CREDENTIALS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sheetId": "YOUR_GOOGLE_SHEET_ID",
+        "range": "Sheet1!D:F",
+        "options": {}
+      },
+      "name": "Update Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        200,
+        100
+      ],
+      "typeVersion": 1,
+      "id": "5868b273-5a34-41f4-9c5d-d89cc153cf10"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Check Platform": {
+      "main": [
+        [
+          {
+            "node": "Post to Twitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Twitter": {
+      "main": [
+        [
+          {
+            "node": "Update Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Content Ideas": {
+      "main": [
+        [
+          {
+            "node": "Generate Post with OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Post with OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Check Platform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fe1657cc-b3b6-41df-9c30-4e8e3e2ab6c0",
+  "meta": {
+    "instanceId": "d60051a71a30e5e68080d1659e6ad99b98c8324a0bde62b5f6da789faf69ec5f"
+  },
+  "id": "qTNaX9WiS08vkIwe",
+  "tags": []
+}
